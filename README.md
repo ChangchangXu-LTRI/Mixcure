@@ -1,4 +1,4 @@
-#Mixcure
+# Mixcure
 
 R language statistical function package for jointly modelling time-to-event and probability of being event-free.
 
