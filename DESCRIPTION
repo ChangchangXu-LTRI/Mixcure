@@ -4,14 +4,7 @@ Title: Maximum (penalized) likelihood estimation of Weibull mixture cure model
 Version: 0.1.0
 Author: Changchang Xu
 Maintainer: Changchang Xu <changchang.xu@mail.utoronto.ca>
-Description: Maximum likelihood estimation of the usual likelihood or Firth-type penalized likelihood of a mixture cure model. 
-The mixture cure model was constructed to jointly model time-to-event (latency) and probability of being event-free (incidence). 
-The latency part of the model is a conventional survival regression with the hazardous baseline approximated by a Weibull function, 
-and the incidence part of the model utilizes a logistic regression. 
-Parameter optimization of both log-likelihoods are via a Newton-type algorithm for non-linear minimization. 
-As the means for hypothesis testing and interval estimation, two alternatives were included: 
-i) Wald-type statistics and Wald-type confidence intervals; 
-ii) likelihood ratio statistics and profile likelihood confidence intervals. 
+Description: Maximum likelihood estimation of the usual likelihood or Firth-type penalized likelihood of a mixture cure model. The mixture cure model was constructed to jointly model time-to-event (latency) and probability of being event-free (incidence).The latency part of the model is a conventional survival regression with the hazardous baseline approximated by a Weibull function, and the incidence part of the model utilizes a logistic regression. Parameter optimization of both log-likelihoods are via a Newton-type algorithm for non-linear minimization. As the means for hypothesis testing and interval estimation, two alternatives were included: i) Wald-type statistics and Wald-type confidence intervals; ii) likelihood ratio statistics and profile likelihood confidence intervals. 
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
