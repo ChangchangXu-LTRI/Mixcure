@@ -52,21 +52,13 @@ ii) coef.mixcure
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or do  help(data=index)  for the standard data sets.
+# Begin Example
+data(primdata.l)
+# Fit the MC model using maximum likelihoodlizards.
+mc.mle <- mixcure.penal.est(Surv(Time, CENS == 1) ~ Her2,data=primdata.l,init=c(0.5,-0.1,-5,1,0.1), pl=F)
+# Now the bias-reduced fit:
+mc.ple <- mixcure.penal.est(Surv(Time, CENS == 1) ~ Her2,data=primdata.l,init=c(0.5,-0.1,-5,1,0.1), pl=T)
 
-## The function is currently defined as
-function (x)
-{
-  }
+mc.mle
+mc.ple
 }
-% Add one or more standard keywords, see file 'KEYWORDS' in the
-% R documentation directory (show via RShowDoc("KEYWORDS")):
-% \keyword{ ~kwd1 }
-% \keyword{ ~kwd2 }
-% Use only one keyword per line.
-% For non-standard keywords, use \concept instead of \keyword:
-% \concept{ ~cpt1 }
-% \concept{ ~cpt2 }
-% Use only one concept per line.
