@@ -3,5 +3,3 @@
 export(mixcure.penal.est)
 export(mixcure.penal.lrt.test)
 export(mixcure.penal.profile.CI.test)
-export(primdata.h)
-export(primdata.l)
