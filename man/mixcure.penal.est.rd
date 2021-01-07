@@ -17,9 +17,9 @@ MC model specification in the form of a conventional survival model, i.e., Surv(
   a data object in the form of dataframe.
   }
   \item{init}{
-  a vector of initial values input for the optimization of the vector of parameters specified in the likelihood. Usually, specified in the order of: 1) regression parameters for the incidence part; 2) regression parameters for the latency part; 3) the shape parameter of Weibull hazard function for the latency part.
+  a vector of initial values input for the optimization of the vector of parameters specified in the likelihood. Usually, specified in the order of 1) regression parameters for the incidence part, 2) regression parameters for the latency part, and 3) the shape parameter of Weibull hazard function for the latency part.
   }
-  \item(pl){
+  \item{pl}{
   if TRUE, uses FT-PL; otherwise uses the usual likelihood for the model.
   }
   \item{iterlim}{
@@ -53,11 +53,11 @@ ii) coef.mixcure
 }
 \examples{
 # Begin Example
-data(primdata.l)
+data(ANNbcBMdat2)
 # Fit the MC model using maximum likelihoodlizards.
-mc.mle <- mixcure.penal.est(Surv(Time, CENS == 1) ~ Her2,data=primdata.l,init=c(0.5,-0.1,-5,1,0.1), pl=F)
+mc.mle <- mixcure.penal.est(Surv(Time, CENS == 1) ~ Her2,data=ANNbcBMdat2,init=c(0.5,-0.1,-5,1,0.1), pl=F)
 # Now the bias-reduced fit:
-mc.ple <- mixcure.penal.est(Surv(Time, CENS == 1) ~ Her2,data=primdata.l,init=c(0.5,-0.1,-5,1,0.1), pl=T)
+mc.ple <- mixcure.penal.est(Surv(Time, CENS == 1) ~ Her2,data=ANNbcBMdat2,init=c(0.5,-0.1,-5,1,0.1), pl=T)
 
 mc.mle
 mc.ple
