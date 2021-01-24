@@ -547,8 +547,8 @@ rownames(coef.table.alpha) <- 'alpha';
     
     eta = 1/((exp(eps)-1)*theta+1)
     delta = 1/(theta/(1-theta)*exp(eps)+1)
-    #kap = theta*(1-theta)*(1-eta)-(1-theta)^2*eta*(1-eta)
-    kap= (1-eta)*(1-theta)*(theta + eta)
+    kap = theta*(1-theta)*(1-eta)-(1-theta)^2*eta*(1-eta) #for est and PLCI
+    #kap= (1-eta)*(1-theta)*(theta + eta)  # for LRT
     pi = exp(eps)*eps*eta^2
     lambda = (1-theta)^2*eta*(1-eta)*((2*eta-1)*(1-theta)+3)
     phi = theta*(1-theta)*((2*eta-1)*(1-theta)+theta)*pi

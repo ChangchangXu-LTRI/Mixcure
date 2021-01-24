@@ -5,7 +5,7 @@
 #### Last modified Dec31 2018 for 3 or more x variables ##
 ##########################################################
 
-mixcure.penal.est <- function(formula, data, init, pl, iterlim = 200) { 
+mixcure.penal.est.uni <- function(formula, data, init, pl, iterlim = 200) { 
 require(splines)
 require(survival)
 require(abind)
@@ -60,77 +60,12 @@ require(abind)
     }  
     #determinant for 10x10;
     TenbyTen <- function(matfunc){
-     detm = matfunc[1,1] * NinbyNin(matfunc[-1,][,-1]) - matfunc[1,2] * NinbyNin(matfunc[-1,][,-2]) + 
-            matfunc[1,3] * NinbyNin(matfunc[-1,][,-3]) - matfunc[1,4] * NinbyNin(matfunc[-1,][,-4]) + 
-            matfunc[1,5] * NinbyNin(matfunc[-1,][,-5]) - matfunc[1,6] * NinbyNin(matfunc[-1,][,-6]) + 
-            matfunc[1,7] * NinbyNin(matfunc[-1,][,-7]) - matfunc[1,8] * NinbyNin(matfunc[-1,][,-8]) + 
-            matfunc[1,9] * NinbyNin(matfunc[-1,][,-9]) - matfunc[1,10] * NinbyNin(matfunc[-1,][,-10])
+     detm = matfunc[1,1] * NinbyNin(matfunc[-1,][,-1]) - matfunc[1,2] * NinbyNin(matfunc[-1,][,-2]) + matfunc[1,3] * NinbyNin(matfunc[-1,][,-3]) - matfunc[1,4] * NinbyNin(matfunc[-1,][,-4]) + matfunc[1,5] * NinbyNin(matfunc[-1,][,-5]) - matfunc[1,6] * NinbyNin(matfunc[-1,][,-6]) + matfunc[1,7] * NinbyNin(matfunc[-1,][,-7]) - matfunc[1,8] * NinbyNin(matfunc[-1,][,-8]) + matfunc[1,9] * NinbyNin(matfunc[-1,][,-9]) - matfunc[1,10] * NinbyNin(matfunc[-1,][,-10])
      return(detm)
     }
     #determinant for 11x11;
     ElebyEle <- function(matfunc){
-      detm = matfunc[1,1] * TenbyTen(matfunc[-1,][,-1]) - matfunc[1,2] * TenbyTen(matfunc[-1,][,-2]) + 
-             matfunc[1,3] * TenbyTen(matfunc[-1,][,-3]) - matfunc[1,4] * TenbyTen(matfunc[-1,][,-4]) + 
-             matfunc[1,5] * TenbyTen(matfunc[-1,][,-5]) - matfunc[1,6] * TenbyTen(matfunc[-1,][,-6]) + 
-             matfunc[1,7] * TenbyTen(matfunc[-1,][,-7]) - matfunc[1,8] * TenbyTen(matfunc[-1,][,-8]) + 
-             matfunc[1,9] * TenbyTen(matfunc[-1,][,-9]) - matfunc[1,10] * TenbyTen(matfunc[-1,][,-10]) + 
-             matfunc[1,11] * TenbyTen(matfunc[-1,][,-11])
-      return(detm)
-    }
-    
-    TwlbyTwl <- function(matfunc){
-      detm = matfunc[1,1] * ElebyEle(matfunc[-1,][,-1]) - matfunc[1,2] * ElebyEle(matfunc[-1,][,-2]) + 
-        matfunc[1,3] * ElebyEle(matfunc[-1,][,-3]) - matfunc[1,4] * ElebyEle(matfunc[-1,][,-4]) + 
-        matfunc[1,5] * ElebyEle(matfunc[-1,][,-5]) - matfunc[1,6] * ElebyEle(matfunc[-1,][,-6]) + 
-        matfunc[1,7] * ElebyEle(matfunc[-1,][,-7]) - matfunc[1,8] * ElebyEle(matfunc[-1,][,-8]) + 
-        matfunc[1,9] * ElebyEle(matfunc[-1,][,-9]) - matfunc[1,10] * ElebyEle(matfunc[-1,][,-10]) + 
-        matfunc[1,11] * ElebyEle(matfunc[-1,][,-11]) - matfunc[1,12] * ElebyEle(matfunc[-1,][,-12])
-      return(detm)
-    }
-    
-    TitbyTit <- function(matfunc){
-      detm = matfunc[1,1] * TwlbyTwl(matfunc[-1,][,-1]) - matfunc[1,2] * TwlbyTwl(matfunc[-1,][,-2]) + 
-        matfunc[1,3] * TwlbyTwl(matfunc[-1,][,-3]) - matfunc[1,4] * TwlbyTwl(matfunc[-1,][,-4]) + 
-        matfunc[1,5] * TwlbyTwl(matfunc[-1,][,-5]) - matfunc[1,6] * TwlbyTwl(matfunc[-1,][,-6]) + 
-        matfunc[1,7] * TwlbyTwl(matfunc[-1,][,-7]) - matfunc[1,8] * TwlbyTwl(matfunc[-1,][,-8]) + 
-        matfunc[1,9] * TwlbyTwl(matfunc[-1,][,-9]) - matfunc[1,10] * TwlbyTwl(matfunc[-1,][,-10]) + 
-        matfunc[1,11] * TwlbyTwl(matfunc[-1,][,-11]) - matfunc[1,12] * TwlbyTwl(matfunc[-1,][,-12]) +
-        matfunc[1,13] * TwlbyTwl(matfunc[-1,][,-13])
-      return(detm)
-    }
-    
-    FotbyFot <- function(matfunc){
-      detm = matfunc[1,1] * TitbyTit(matfunc[-1,][,-1]) - matfunc[1,2] * TitbyTit(matfunc[-1,][,-2]) + 
-        matfunc[1,3] * TitbyTit(matfunc[-1,][,-3]) - matfunc[1,4] * TitbyTit(matfunc[-1,][,-4]) + 
-        matfunc[1,5] * TitbyTit(matfunc[-1,][,-5]) - matfunc[1,6] * TitbyTit(matfunc[-1,][,-6]) + 
-        matfunc[1,7] * TitbyTit(matfunc[-1,][,-7]) - matfunc[1,8] * TitbyTit(matfunc[-1,][,-8]) + 
-        matfunc[1,9] * TitbyTit(matfunc[-1,][,-9]) - matfunc[1,10] * TitbyTit(matfunc[-1,][,-10]) + 
-        matfunc[1,11] * TitbyTit(matfunc[-1,][,-11]) - matfunc[1,12] * TitbyTit(matfunc[-1,][,-12]) +
-        matfunc[1,13] * TitbyTit(matfunc[-1,][,-13]) - matfunc[1,14] * TitbyTit(matfunc[-1,][,-14])
-      return(detm)
-    }
-    
-    FifbyFif <- function(matfunc){
-      detm = matfunc[1,1] * FotbyFot(matfunc[-1,][,-1]) - matfunc[1,2] * FotbyFot(matfunc[-1,][,-2]) + 
-        matfunc[1,3] * FotbyFot(matfunc[-1,][,-3]) - matfunc[1,4] * FotbyFot(matfunc[-1,][,-4]) + 
-        matfunc[1,5] * FotbyFot(matfunc[-1,][,-5]) - matfunc[1,6] * FotbyFot(matfunc[-1,][,-6]) + 
-        matfunc[1,7] * FotbyFot(matfunc[-1,][,-7]) - matfunc[1,8] * FotbyFot(matfunc[-1,][,-8]) + 
-        matfunc[1,9] * FotbyFot(matfunc[-1,][,-9]) - matfunc[1,10] * FotbyFot(matfunc[-1,][,-10]) + 
-        matfunc[1,11] * FotbyFot(matfunc[-1,][,-11]) - matfunc[1,12] * FotbyFot(matfunc[-1,][,-12]) +
-        matfunc[1,13] * FotbyFot(matfunc[-1,][,-13]) - matfunc[1,14] * FotbyFot(matfunc[-1,][,-14]) +
-        matfunc[1,15] * FotbyFot(matfunc[-1,][,-15])
-        return(detm)
-    }
-    
-    SitbySit <- function(matfunc){
-      detm = matfunc[1,1] * FifbyFif(matfunc[-1,][,-1]) - matfunc[1,2] * FifbyFif(matfunc[-1,][,-2]) + 
-        matfunc[1,3] * FifbyFif(matfunc[-1,][,-3]) - matfunc[1,4] * FifbyFif(matfunc[-1,][,-4]) + 
-        matfunc[1,5] * FifbyFif(matfunc[-1,][,-5]) - matfunc[1,6] * FifbyFif(matfunc[-1,][,-6]) + 
-        matfunc[1,7] * FifbyFif(matfunc[-1,][,-7]) - matfunc[1,8] * FifbyFif(matfunc[-1,][,-8]) + 
-        matfunc[1,9] * FifbyFif(matfunc[-1,][,-9]) - matfunc[1,10] * FifbyFif(matfunc[-1,][,-10]) + 
-        matfunc[1,11] * FifbyFif(matfunc[-1,][,-11]) - matfunc[1,12] * FifbyFif(matfunc[-1,][,-12]) +
-        matfunc[1,13] * FifbyFif(matfunc[-1,][,-13]) - matfunc[1,14] * FifbyFif(matfunc[-1,][,-14]) +
-        matfunc[1,15] * FifbyFif(matfunc[-1,][,-15]) - matfunc[1,16] * FifbyFif(matfunc[-1,][,-16])
+      detm = matfunc[1,1] * TenbyTen(matfunc[-1,][,-1]) - matfunc[1,2] * TenbyTen(matfunc[-1,][,-2]) + matfunc[1,3] * TenbyTen(matfunc[-1,][,-3]) - matfunc[1,4] * TenbyTen(matfunc[-1,][,-4]) + matfunc[1,5] * TenbyTen(matfunc[-1,][,-5]) - matfunc[1,6] * TenbyTen(matfunc[-1,][,-6]) + matfunc[1,7] * TenbyTen(matfunc[-1,][,-7]) - matfunc[1,8] * TenbyTen(matfunc[-1,][,-8]) + matfunc[1,9] * TenbyTen(matfunc[-1,][,-9]) - matfunc[1,10] * TenbyTen(matfunc[-1,][,-10]) + matfunc[1,11] * TenbyTen(matfunc[-1,][,-11])
       return(detm)
     }
     
@@ -178,27 +113,7 @@ require(abind)
     if (ncol(matx) == 11){
       determt = ElebyEle(matx)
     }
-    
-    if (ncol(matx) == 12){
-      determt = TwlbyTwl(matx)
-    }
-    
-    if (ncol(matx) == 13){
-      determt = TitbyTit(matx)
-    }
-    
-    if (ncol(matx) == 14){
-      determt = FotbyFot(matx)
-    }
-
-    if (ncol(matx) == 15){
-      determt = FifbyFif(matx)
-    }
-    if (ncol(matx) == 16){
-      determt = SitbySit(matx)
-    }
-    
-        return(determt)
+    return(determt)
   }
   
   #########################################################################################
@@ -253,11 +168,12 @@ require(abind)
     eps = survt[,1]^(p[index.gamma])*exp(design.matrix%*%p[index.surv.var])
     eta = 1/((exp(eps)-1)*theta+1)
     delta = 1/(theta/(1-theta)*exp(eps)+1)
-    kap = -theta*(1-theta)*(1-eta)+(1-theta)^2*eta*(1-eta)  # for est and PLCI
-    #kap= (1-eta)*(1-theta)*(theta + eta)    # exp for LRT 
-     pi = exp(eps)*eps*eta^2
-    # lambda = (1-theta)^2*eta*(1-eta)*((2*eta-1)*(1-theta)+3)
-    # phi = theta*(1-theta)*((2*eta-1)*(1-theta)+theta)*pi
+    kap = -theta*(1-theta)*(1-eta)+(1-theta)^2*eta*(1-eta) #for est and PLCI
+    #kap = theta*(1-theta)*(1-eta)-(1-theta)^2*eta*(1-eta)
+    #kap= (1-eta)*(1-theta)*(theta + eta)   # exp for LRT 
+    pi = exp(eps)*eps*eta^2
+    lambda = (1-theta)^2*eta*(1-eta)*((2*eta-1)*(1-theta)+3)
+    phi = theta*(1-theta)*((2*eta-1)*(1-theta)+theta)*pi
 
     #calculate loglikelihood for the unpenalized;
     cure.par <- p[1 : ncol(design.matrix) ];
@@ -291,7 +207,8 @@ require(abind)
     for (i in c(index.cure.var)) {
       for (j in c(index.cure.var,length(index.surv.var)+1)) {
         b.sub[i,j] <- -sum((design.matrix[,i]*design.xt[,j]*theta*(1-theta)*pi)[survt[, 2] == 0])
-        #b.sub[i,j] <- -sum((design.matrix[,i]*design.xt[,j]*eps*(1-eta)*eta*(1-theta))[survt[, 2] == 0])
+        #b.sub[i,j] <- -sum((design.matrix[,i]*design.xt[,j]*eps*(1-delta)*delta)[survt[, 2] == 0])
+        b.sub[i,j] <- -sum((design.matrix[,i]*design.xt[,j]*eps*(1-eta)*eta*(1-theta))[survt[, 2] == 0])
         
               }
     }
@@ -305,9 +222,8 @@ require(abind)
     for (i in c(index.cure.var,length(index.surv.var)+1)) {
       for (j in c(index.cure.var,length(index.surv.var)+1)) {
         d.sub1[i,j] <- sum((design.xt[,i]*design.xt[,j]*eps)[survt[, 2] == 1])
-        #d.sub2[i,j] <- sum((design.xt[,i]*design.xt[,j]*(eps*delta-eps^2*delta+eps^2*delta^2))[survt[, 2] == 0])
+        d.sub2[i,j] <- sum((design.xt[,i]*design.xt[,j]*(eps*delta-eps^2*delta+eps^2*delta^2))[survt[, 2] == 0])
         #d.sub2[i,j] <- sum((design.xt[,i]*design.xt[,j]*(eps*delta^2))[survt[, 2] == 0])
-        d.sub2[i,j] <- sum((design.xt[,i]*design.xt[,j]*(eps*delta-eps^2*(delta*(1-delta))))[survt[, 2] == 0])
         
         }
     }
