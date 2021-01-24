@@ -244,7 +244,8 @@ require(abind)
     
     for (i in c(index.cure.var)) {
       for (j in c(index.cure.var,length(index.surv.var)+1)) {
-        b.sub[i,j] <- -sum((design.matrix[,i]*design.xt[,j]*theta*(1-theta)*pi)[survt[, 2] == 0])
+        #b.sub[i,j] <- -sum((design.matrix[,i]*design.xt[,j]*theta*(1-theta)*pi)[survt[, 2] == 0])
+        b.sub[i,j] <- -sum((design.matrix[,i]*design.xt[,j]*eps*(1-delta)*delta)[survt[, 2] == 0]) #for est, PLCI
       }
     }
     info.b = b.sub  #Upper right block of fisher.info;
