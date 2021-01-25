@@ -5,7 +5,7 @@
 #### Last modified Dec31 2018 for one x variable ##
 ###################################################
 
-mixcure.penal.lrt.test.uni <- function(formula, data, init, pl, loglik, iterlim = 200) { 
+mixcure.penal.lrt.test.uni <- function(formula, data, init, pl, iterlim = 200) { 
 require(splines)
 require(survival)
 require(abind)
@@ -227,9 +227,8 @@ require(abind)
     eps = survt[,1]^(p[index.gamma])*exp(design.matrix%*%p[index.surv.var])
     eta = 1/((exp(eps)-1)*theta+1)
     delta = 1/(theta/(1-theta)*exp(eps)+1)
-    kap = -theta*(1-theta)*(1-eta)+(1-theta)^2*eta*(1-eta) #for est and PLCI
-    #kap = theta*(1-theta)*(1-eta)-(1-theta)^2*eta*(1-eta)
-    #kap= (1-eta)*(1-theta)*(theta + eta)   # exp for LRT 
+    kap = -theta*(1-theta)*(1-eta)+(1-theta)^2*eta*(1-eta) #for LRT, p-large
+    #kap= (1-eta)*(1-theta)*(theta + eta)   # exp for est and PLCI ; LRT p-small
     pi = exp(eps)*eps*eta^2
     lambda = (1-theta)^2*eta*(1-eta)*((2*eta-1)*(1-theta)+3)
     phi = theta*(1-theta)*((2*eta-1)*(1-theta)+theta)*pi
@@ -265,9 +264,9 @@ require(abind)
       
       for (i in c(index.cure.var)) {
         for (j in c(index.cure.var,length(index.surv.var)+1)) {
-          b.sub[i,j] <- -sum((design.matrix[,i]*design.xt[,j]*theta*(1-theta)*pi)[survt[, 2] == 0])
-          #b.sub[i,j] <- -sum((design.matrix[,i]*design.xt[,j]*eps*(1-delta)*delta)[survt[, 2] == 0])
-          b.sub[i,j] <- -sum((design.matrix[,i]*design.xt[,j]*eps*(1-eta)*eta*(1-theta))[survt[, 2] == 0])
+          #b.sub[i,j] <- -sum((design.matrix[,i]*design.xt[,j]*theta*(1-theta)*pi)[survt[, 2] == 0]) #for LRT
+          b.sub[i,j] <- -sum((design.matrix[,i]*design.xt[,j]*eps*(1-delta)*delta)[survt[, 2] == 0]) #for est
+          #b.sub[i,j] <- -sum((design.matrix[,i]*design.xt[,j]*eps*(1-eta)*eta*(1-theta))[survt[, 2] == 0])
           
         }
       }
@@ -327,7 +326,7 @@ require(abind)
   maximizer0 <- nlm(
     f = loglik.mixture, p = init, survt=survt, design.matrix=design.matrix, 
     pl = pl, 
-    iterlim = iterlim, hessian=TRUE);
+    iterlim = iterlim, hessian=F);
   loglik <- -maximizer0$minimum  #in loglik function loglik was calculated as minus of actual loglik value
   
   
@@ -358,8 +357,8 @@ require(abind)
 
     eta = 1/((exp(eps)-1)*theta+1)
     delta = 1/(theta/(1-theta)*exp(eps)+1)
-    #kap = -theta*(1-theta)*(1-eta)+(1-theta)^2*eta*(1-eta)
-    kap= (1-eta)*(1-theta)*(theta + eta)
+    kap = -theta*(1-theta)*(1-eta)+(1-theta)^2*eta*(1-eta) #for LRT, p-large
+    #kap= (1-eta)*(1-theta)*(theta + eta) #for est, PLCI; LRT p-small
     pi = exp(eps)*eps*eta^2
     #lambda = (1-theta)^2*eta*(1-eta)*((2*eta-1)*(1-theta)+3)
     #phi = theta*(1-theta)*((2*eta-1)*(1-theta)+theta)*pi
@@ -409,7 +408,8 @@ require(abind)
     
     for (i in c(index.cure.var)) {
       for (j in c(index.surv.var-max.len, max.len+1)) {
-        b.sub[i,j] <- -sum((as.matrix(design.matrix1)[,i]*design.xt0[,j]*theta*(1-theta)*pi)[survt[, 2] == 0])  #equivalent to expression below
+        #b.sub[i,j] <- -sum((as.matrix(design.matrix1)[,i]*design.xt0[,j]*theta*(1-theta)*pi)[survt[, 2] == 0])  #equivalent to expression below; *eps*(1-delta)*delta
+        b.sub[i,j] <- -sum((as.matrix(design.matrix1)[,i]*design.xt0[,j]*eps*(1-delta)*delta)[survt[, 2] == 0])
         #b.sub[i,j] <- -sum((design.matrix1[,i]*design.xt0[,j]*eps*(1-eta)*eta*(1-theta))[survt[, 2] == 0])
                                                         }
                                  }
