@@ -27,7 +27,7 @@ MC model specification in the form of a conventional survival model, i.e., Surv(
   }
 }
 \details{
-%%  ~~ If necessary, more details than the description above ~~
+1) For categorical variables of 3 or more categories, pre-treatment for transforming it to binary dummy variables are needed, when being specified in the formula. 
 }
 \value{
 The mixcure.penal.est function returns an object of class 'mixcure' that encompasses a list of the followings:
