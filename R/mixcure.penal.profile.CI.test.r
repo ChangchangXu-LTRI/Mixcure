@@ -548,8 +548,7 @@ mixcure.penal.profile.CI.test <- function(formula, data, init, pl, apct = 0.05, 
 
         }
       }
-      # if (k <= length(index.cure.var)) {info.b = b.sub[index.cure.var[-k],c(index.surv.var-max.len,index.gamma-max.len)]} else
-      # {info.b = b.sub[index.cure.var,c(index.surv.var[-ik]-max.len,index.gamma-max.len)]}
+
       info.b = b.sub[index.cure.var,c(index.surv.var-max.len,index.gamma-max.len)]
 
       ###info matrix block d
