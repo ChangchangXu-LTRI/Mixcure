@@ -1,15 +1,11 @@
-################################
-### Function for mixcure model##
-#### penalized loglikelihoods ##
-###################################################
-#### Last modified Dec31 2018 for one x variable ##
-###################################################
+############################################################
+### Function for profile likelihood confidence interval ####
+#### of mixcure model penalized loglikelihoods         #####
+############################################################
+#### previously 'mixcure.penal.profile.CI.test.r' ##
+####################################################
 
-########### NOTE on Oct22:
-########## Error checking for cure uppper points iter2;
-########## maximizer$temp1 is not consistent in and out of iter2 loop;
-
-mixcure.penal.profile.CI.test <- function(formula, data, init, pl, apct = 0.05, LRT.pval = F, iterlim = 200) {
+mixcure.penal.profile.CI.nested <- function(formula, data, init, pl, apct = 0.05, LRT.pval = F, iterlim = 200) {
   require(splines)
   require(survival)
   require(abind)
@@ -165,25 +161,6 @@ mixcure.penal.profile.CI.test <- function(formula, data, init, pl, apct = 0.05, 
   ## penalized mixture cure loglikelihood functions ##
   ####################################################
 
-  # > maximizer0$minimum
-  # [1] 600.1339
-  # > maximizer0$estimate
-  # [1]  1.71643676 -0.17877823  0.65814299  0.61905752  0.09867225 -0.77065440 -7.63529053  0.85847947 -0.20121321  1.00244978  0.71073735 -0.22989348
-  # [13]  1.81956226
-  # op.est = c(1.71643676, 0,  0.65814299,  0.61905752,  0.09867225, -0.77065440, -7.63529053,  0.85847947, -0.20121321,  1.00244978,  0.71073735, -0.22989348, 1.81956226)
-  # > loglik.part
-  # [1] 600.3221
-  #
-  # op.est = c(1.71643676, -0.17877823,  0,  0.61905752,  0.09867225, -0.77065440, -7.63529053,  0.85847947, -0.20121321,  1.00244978,  0.71073735, -0.22989348, 1.81956226)
-  # > loglik.part
-  # [1] 604.1643
-  #
-  # op.est = c(1.71643676, -0.17877823,  0.65814299,  0,  0.09867225, -0.77065440, -7.63529053,  0.85847947, -0.20121321,  1.00244978,  0.71073735, -0.22989348, 1.81956226)
-  # > loglik.part
-  # [1] 603.4383
-  #
-  # p = op.est;
-  # design.matrix1 = design.matrix; design.matrix0 = design.matrix; index.cure.var=index.cure.v;index.surv.var=index.surv.v;
 
   loglik.mixture <- function(p, survt, design.matrix, index.cure.var=index.cure.v, index.surv.var=index.surv.v, pl) {
 
@@ -216,14 +193,6 @@ mixcure.penal.profile.CI.test <- function(formula, data, init, pl, apct = 0.05, 
 
       ####calculate inverse of info matrix by block matrix;
       ################
-      # a.sub1xsq = sum((design.matrix[,-1]^2*theta*(1-theta))[survt[, 2] == 1])
-      # a.sub2xsq = sum((design.matrix[,-1]^2*kap)[survt[, 2] == 0])
-      # a.sub1x = sum((design.matrix[,-1]*theta*(1-theta))[survt[, 2] == 1])
-      # a.sub2x = sum((design.matrix[,-1]*kap)[survt[, 2] == 0])
-      # a.sub1 = sum((theta*(1-theta))[survt[, 2] == 1])
-      # a.sub2 = sum(kap[survt[, 2] == 0])
-      # info.a = rbind(cbind((a.sub1+a.sub2),(a.sub1x+a.sub2x)),
-      #                cbind((a.sub1x+a.sub2x),(a.sub1xsq+a.sub2xsq)))
 
       n.elema = length(index.cure.var)^2
       a.sub1 <- matrix(rep(0,n.elema), nrow = length(index.cure.var))
@@ -238,19 +207,6 @@ mixcure.penal.profile.CI.test <- function(formula, data, init, pl, apct = 0.05, 
       info.a = a.sub1 + a.sub2
 
 
-      # det.a = (a.sub1xsq+a.sub2xsq)*(a.sub1+a.sub2)-(a.sub1x+a.sub2x)^2
-      # info.a.inv <- (1/det.a)*matrix(c((a.sub1xsq+a.sub2xsq),((a.sub1x+a.sub2x)),
-      #                                  ((a.sub1x+a.sub2x)),(a.sub1+a.sub2)),
-      #                                nrow=length(index.cure.var))
-
-      # b.subxsq = -sum((design.matrix[,-1]^2*theta*(1-theta)*pi)[survt[, 2] == 0])
-      # b.subx = -sum((design.matrix[,-1]*theta*(1-theta)*pi)[survt[, 2] == 0])
-      # b.sub = -sum((theta*(1-theta)*pi)[survt[, 2] == 0])
-      # b.subxt = -sum((design.matrix[,-1]*log(survt[,1])*theta*(1-theta)*pi)[survt[, 2] == 0])
-      # b.subt = -sum((log(survt[,1])*theta*(1-theta)*pi)[survt[, 2] == 0])
-      # info.b <- matrix(c(b.sub,b.subx,b.subx,b.subxsq,b.subt,b.subxt),nrow=length(index.cure.var))
-
-
       design.xt <- cbind(design.matrix, log(survt[,1]))
       n.elemb <- length(index.cure.var)*(length(index.cure.var)+1)
       b.sub <- matrix(rep(0,n.elemb), nrow = length(index.surv.var))
@@ -263,24 +219,6 @@ mixcure.penal.profile.CI.test <- function(formula, data, init, pl, apct = 0.05, 
         }
       }
       info.b = b.sub  #Upper right block of fisher.info;
-
-      # d.sub1 = sum(eps[survt[, 2] == 1])
-      # d.sub2 = sum((eps*delta-eps^2*delta+eps^2*delta^2)[survt[, 2] == 0])
-      # d.sub1x = sum((design.matrix[,-1]*eps)[survt[, 2] == 1])
-      # d.sub2x = sum((design.matrix[,-1]*(eps*delta-eps^2*delta+eps^2*delta^2))[survt[, 2] == 0])
-      # d.sub1xsq = sum((design.matrix[,-1]^2*eps)[survt[, 2] == 1])
-      # d.sub2xsq = sum((design.matrix[,-1]^2*(eps*delta-eps^2*delta+eps^2*delta^2))[survt[, 2] == 0])
-      # d.sub1t = sum((log(survt[,1])*eps)[survt[, 2] == 1])
-      # d.sub2t = sum((log(survt[,1])*(eps*delta-eps^2*delta+eps^2*delta^2))[survt[, 2] == 0])
-      # d.sub1xt = sum((design.matrix[,-1]*log(survt[,1])*eps)[survt[, 2] == 1])
-      # d.sub2xt = sum((design.matrix[,-1]*log(survt[,1])*(eps*delta-eps^2*delta+eps^2*delta^2))[survt[, 2] == 0])
-      # d.sub1tsq = sum((log(survt[,1])^2*eps)[survt[, 2] == 1])
-      # d.sub2tsq = sum((log(survt[,1])^2*(eps*delta-eps^2*delta+eps^2*delta^2))[survt[, 2] == 0])
-      #
-      # info.d <- matrix(c((d.sub1+d.sub2),(d.sub1x+d.sub2x),(d.sub1t+d.sub2t),
-      #                    (d.sub1x+d.sub2x),(d.sub1xsq+d.sub2xsq),(d.sub1xt+d.sub2xt),
-      #                    (d.sub1t+d.sub2t),(d.sub1xt+d.sub2xt),
-      #                    (sum(survt[, 2] == 1)/(p[index.gamma]^2)+d.sub1tsq+d.sub2tsq)), nrow = 3)
 
 
       n.elemd <- (length(index.surv.var)+1)^2
@@ -533,8 +471,8 @@ mixcure.penal.profile.CI.test <- function(formula, data, init, pl, apct = 0.05, 
           a.sub2[i,j] <- sum((as.matrix(design.matrix0)[,i]*as.matrix(design.matrix0)[,j]*kap)[survt[, 2] == 0])
         }
       }
-      # if (k <= length(index.cure.var)) {info.a = (a.sub1 + a.sub2)[index.cure.var[-k],index.cure.var[-k]]} else
-      info.a = (a.sub1 + a.sub2)[index.cure.var,index.cure.var]
+      #info.a = (a.sub1 + a.sub2)[index.cure.var,index.cure.var]
+      info.a = (a.sub1 + a.sub2)
 
       ##info matrix block B
       design.xt0 <- cbind(design.matrix0, log(survt[,1]))
@@ -544,12 +482,10 @@ mixcure.penal.profile.CI.test <- function(formula, data, init, pl, apct = 0.05, 
       for (i in c(index.cure.var)) {
         for (j in c(1:length(index.surv.var), max.len+1)) {
           b.sub[i,j] <- -sum((as.matrix(design.matrix1)[,i]*design.xt0[,j]*eps*(1-delta)*delta)[survt[, 2] == 0])
-          #b.sub[i,j] <- -sum((design.matrix1[,i]*design.xt0[,j]*eps*(1-eta)*eta*(1-theta))[survt[, 2] == 0])
-
         }
       }
-
-      info.b = b.sub[index.cure.var,c(index.surv.var-max.len,index.gamma-max.len)]
+      #info.b = b.sub[index.cure.var,c(index.surv.var-max.len,index.gamma-max.len)]
+      info.b = b.sub
 
       ###info matrix block d
       design.xt1 <- cbind(design.matrix1, log(survt[,1]))
@@ -562,18 +498,13 @@ mixcure.penal.profile.CI.test <- function(formula, data, init, pl, apct = 0.05, 
         for (j in c(index.surv.var-max.len, max.len +1)) {
           d.sub1[i,j] <- sum((design.xt1[,i]*design.xt1[,j]*eps)[survt[, 2] == 1])
           d.sub2[i,j] <- sum((design.xt1[,i]*design.xt1[,j]*(eps*delta-eps^2*delta+eps^2*delta^2))[survt[, 2] == 0])
-          #d.sub2[i,j] <- sum((design.xt1[,i]*design.xt1[,j]*(eps*delta^2))[survt[, 2] == 0])
         }
       }
       d.sub = d.sub1 + d.sub2 +
         matrix(c(rep(0, (n.elemd - 1)),sum(survt[, 2] == 1)/(p[index.gamma-1]^2)),
                nrow = (max.len + 1))
 
-      # if (k <= length(index.cure.var))
-      #   {info.d = d.sub[c(index.surv.var-max.len,index.gamma-max.len),c(index.surv.var-max.len,index.gamma-max.len)]} else
-      #   {info.d = d.sub[c(index.surv.var[-ik]-max.len,index.gamma-max.len),c(index.surv.var[-ik]-max.len,index.gamma-max.len)]}
-
-      info.d = d.sub[c(index.surv.var-max.len,index.gamma-max.len),c(index.surv.var-max.len,index.gamma-max.len)]
+      info.d = d.sub
 
       info.d.inv = mat.inv(info.d)
 
@@ -608,13 +539,6 @@ mixcure.penal.profile.CI.test <- function(formula, data, init, pl, apct = 0.05, 
     ll.cure <- rep(0,dim.v)
     llr.cure <- rep(0,dim.v)
     pval.cure <- rep(0,dim.v)
-    #ll.est.cure <- array(0,c((2*dim.v+1),(2*dim.v+1)))
-    #varmat.A.cure <-sample(0,3*dim.v,replace = TRUE)
-    #varmat.A.cure <-array(0,c((2*dim.v+1),(2*dim.v+1),(2*dim.v+1))) #vcov matrix of each single parameter (cure.var1,cure.var2) likelihood ratio test;
-
-    # dim(varmat.A.cure) = c(dim.v,dim.v,dim.v)
-    # score.U.cure <- array(0,c((2*dim.v+1),(2*dim.v+1))) #gradient vector for all variables of each single parameter(cure.var1,cure.var2) likelihood ratio test;
-    # init = c(0.866409603,	-0.334994711,	0.004421239,	-0.070689979,	-8.11466538,	-0.349162116,	0.143310052,	-0.049019853,	0.1)
 
     for (k in index.cure.v[-1]) {
       # mle under the reduced (null) model for cure parameter;
@@ -625,7 +549,6 @@ mixcure.penal.profile.CI.test <- function(formula, data, init, pl, apct = 0.05, 
         index.cure.var=index.cure.v[-k], pl=pl,
         iterlim = iterlim, hessian=F
       );
-      # ll.est.cure[,k] <- maximizer$estimate
       loglik.part = -maximizer$minimum;
       dif.ll = -2*(loglik.part-loglik);  #loglik is ll under Ha;
       pval = pchisq(abs(dif.ll),df=1,lower.tail=FALSE);
@@ -634,9 +557,6 @@ mixcure.penal.profile.CI.test <- function(formula, data, init, pl, apct = 0.05, 
       pval.cure[k]<- pval
       if (det(maximizer$hessian) < 1e-05)
         diag(maximizer$hessian) <- diag(maximizer$hessian) + 1e-06
-      # varmat.A.cure[,,k] <- solve(maximizer$hessian)  #if hessian matrix contains row/col of zeros, add small values;
-      # score.U.cure [,k] <- maximizer$gradient
-
     }
   }
   ###################################
@@ -668,13 +588,10 @@ mixcure.penal.profile.CI.test <- function(formula, data, init, pl, apct = 0.05, 
   for (k in index.cure.v) {
 
     ##################upper endpoint##########################
-    # tol = 0.2
     tol = 0.1
     l.temp <- loglik
 
     n=ni+1
-    # iter0 <- 1; converge = FALSE;l0.b.up = 0;
-    # while(l.temp > l.null & (!converge| is.nan(l0.b.up)) & iter0<=30) {
 
     #assign initial values to parameter estimates
     param.est.up <- maximizer0$estimate
@@ -696,8 +613,9 @@ mixcure.penal.profile.CI.test <- function(formula, data, init, pl, apct = 0.05, 
       l0.b.up <- -maximizer.temp$minimum
       inv.hessian.temp <- solve(hessian.temp)
 
-      if ((inv.hessian.temp[k,k] < 0)|(l0.b.up < l.null + 0.5 * score.temp %*% inv.hessian.temp %*% score.temp)) {
-        lambda <- (l0.b.up - l.null + (-inv.hessian.temp %*% score.temp)[k])/inv.hessian.temp[k,k]
+      if ((l0.b.up - l.null + score.temp %*% inv.hessian.temp %*% score.temp)/inv.hessian.temp[k,k]<0) {
+        #   lambda <- (0.5*(l0.b.up - l.null) + (-inv.hessian.temp %*% score.temp)[k])/inv.hessian.temp[k,k]
+        lambda <- (inv.hessian.temp %*% score.temp)[k]/inv.hessian.temp[k,k]
         #        lambda <- (-inv.hessian.temp %*% score.temp)[k])/inv.hessian.temp[k,k]
         #define increment for estimated value: delta=-A^-1(U-lambda*e)
         delta.up <- -inv.hessian.temp[k,k] %*% (score.temp[k] - lambda);
@@ -888,8 +806,9 @@ mixcure.penal.profile.CI.test <- function(formula, data, init, pl, apct = 0.05, 
       #                            index.cure.var=index.cure.v, index.surv.var=index.surv.v, pl)
       l0.b.up <- -maximizer.temp$minimum
       inv.hessian.temp <- solve(hessian.temp)
-      if (l0.b.up < l.null + 0.5 * score.temp %*% inv.hessian.temp %*% score.temp) {
-        lambda <- ((-inv.hessian.temp %*% score.temp)[k])/inv.hessian.temp[k,k]
+      if ((l0.b.up - l.null + score.temp %*% inv.hessian.temp %*% score.temp)/inv.hessian.temp[k,k]<0) {
+        #   lambda <- (0.5*(l0.b.up - l.null) + (-inv.hessian.temp %*% score.temp)[k])/inv.hessian.temp[k,k]
+        lambda <- (inv.hessian.temp %*% score.temp)[k]/inv.hessian.temp[k,k]
         #define increment for estimated value: delta=-A^-1(U-lambda*e)
         delta.up <- -inv.hessian.temp[k,k] %*% (score.temp[k] - lambda);
       } else{
