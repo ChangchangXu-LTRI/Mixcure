@@ -155,8 +155,8 @@ require(abind)
 
 
 #############################################################
-#############################################################
 #### loglik function of full model
+
   loglik.mixture <- function(p, survt, design.matrix, index.cure.var=index.cure.v, index.surv.var=index.surv.v, pl) {
 
     ####  parameter and variable dependent parameters;
