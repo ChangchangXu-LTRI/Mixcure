@@ -1,9 +1,7 @@
-#######################################
-### Function for LRT of mixcure model##
-#### penalized loglikelihoods #########
-###################################################
-#### Last modified Dec31 2018 for one x variable ##
-###################################################
+#####################################################################
+####      Function for LRT of mixcure model for              ########
+####      FT-PL or ML via direct likelihood ratio comparison ########
+#####################################################################
 
 mixcure.penal.lrt.test <- function(formula, data, init, pl, iterlim = 200) {
 require(splines)
@@ -144,56 +142,6 @@ require(abind)
 
   #########################################################################################
 
-  # ## Use TMA as an example data ##
-  # setwd('C:\\Biostats_PhD\\Missing imputation studies\\simulation data')
-  # data1<-read.csv("junk2.csv", header=TRUE)
-  # data2<-read.csv("ki67 data.csv", header=TRUE)
-  # data3<-read.csv("EGFR data.csv", header=TRUE)
-  # data4<-merge(data1,data2,by="siteid",all.x=TRUE)
-  # primdata<-merge(data3,data4,by="siteid")
-  #
-  # primdata$labER<-factor(with(primdata,ifelse((NESTLAB==1),1,
-  #                                             ifelse((NESTLAB==2 | NESTLAB==3), 2,
-  #                                                    ifelse((NESTLAB==9),3,".")))))
-  #
-  # primdata$labPR<-factor(with(primdata,ifelse((NPROLAB==1),1,
-  #                                             ifelse((NPROLAB==2 | NPROLAB==3), 2,
-  #                                                    ifelse((NPROLAB==9),3,".")))))
-  #
-  # primdata$MENS0<-factor(with(primdata,ifelse((MENSTAT==3),0,1)))##pre&peri vs. post
-  # primdata$TUMCT2<-factor(with(primdata,ifelse((TUMCAT==5),1,0)))##>5 vs. rest
-  # primdata$TUMCT5<-factor(with(primdata,ifelse((TUMCAT==4),1,0)))##2-5 vs. rest
-  # primdata$TUMCT <-factor(with(primdata,ifelse((TUMCT2==1|TUMCT5==1),1,0)))##>2 vs. <2
-  #
-  # primdata$Her2<-factor(with(primdata,ifelse((Cockt==1),1,
-  #                                            ifelse((Cockt==0), 0, "."))))
-  #
-  # primdata$TN<-factor(with(primdata,
-  #                          ifelse((Cockt==0 & labER == 2 & labPR == 2),1,0)))
-  #
-  # primdata$Basal<-factor(with(primdata,
-  #                             ifelse((Cockt==0 & labER == 2 & labPR == 2 &(CK_5 == 1 | EGFR_NWD == 1)),1,0)))
-  #
-  # primdata$TNPnonbasal<-factor(with(primdata,
-  #                                   ifelse((Cockt==0 & labER == 2 & labPR == 2 &(CK_5 == 0 & EGFR_NWD == 0)),1,0)))
-  #
-  # primdata$LuminalA<-factor(with(primdata,
-  #                                ifelse((Cockt==0 & (labER == 1 | labPR == 1) & ki67D == 0),1,0)))
-  #
-  # primdata$LuminalB<-factor(with(primdata,
-  #                                ifelse((Cockt==0 & (labER == 1 | labPR == 1) & ki67D == 1),1,0)))
-  #
-  # primdata$Subtype<-factor(with(primdata,
-  #                               ifelse((LuminalA=='1'),"LuminalA",
-  #                                      ifelse((LuminalB=='1'),"LuminalB",
-  #                                             ifelse((Her2=='1'), "Her2",
-  #                                                    ifelse((TN=='1'), "Triple Negative", "Missing"))))))
-  # missing1 <- primdata[!primdata$Subtype=="Missing",]
-  # missing3 <- missing1[,c('TSURV2','CENS','TN','LuminalA', 'MENS0','TUMCT')]
-  # missing3$Her2 <- factor(with(missing1,ifelse((Her2==1),1,0)))
-  #
-  # formula = Surv(TSURV2, CENS == 0) ~ Her2 + LuminalA +TN + MENS0 + TUMCT; data = missing3; init=c(-1,rep(0,5),-1,rep(0,5),0.1); pl=T; iterlim = 200
-
   design.matrix <- model.frame(formula, data = data, na.action = na.omit);
   survt <- design.matrix[,1];
 
@@ -209,19 +157,16 @@ require(abind)
 #############################################################
 #############################################################
 #### loglik function of full model
-  loglik.mixture <- function(p, survt, design.matrix, index.cure.var=index.cure.v, index.surv.var=index.surv.v, pl, PLCI=F) {
+  loglik.mixture <- function(p, survt, design.matrix, index.cure.var=index.cure.v, index.surv.var=index.surv.v, pl) {
 
-    ####  parameter and variable dep parameters;
+    ####  parameter and variable dependent parameters;
     #####
     theta = 1/(1+exp(-design.matrix%*%p[index.cure.var]))
     eps = survt[,1]^(p[index.gamma])*exp(design.matrix%*%p[index.surv.var])
     eta = 1/((exp(eps)-1)*theta+1)
     delta = 1/(theta/(1-theta)*exp(eps)+1)
-    kap = -theta*(1-theta)*(1-eta)+(1-theta)^2*eta*(1-eta)  # exp for LRT,p-large
-    #kap= (1-eta)*(1-theta)*(theta + eta)    # for est and PLCI, p-small (for TMA multivariate LRT)
+    kap = -theta*(1-theta)*(1-eta)+(1-theta)^2*eta*(1-eta)
     pi = exp(eps)*eps*eta^2
-    # lambda = (1-theta)^2*eta*(1-eta)*((2*eta-1)*(1-theta)+3)
-    # phi = theta*(1-theta)*((2*eta-1)*(1-theta)+theta)*pi
 
     #calculate loglikelihood for the unpenalized;
     cure.par <- p[1 : ncol(design.matrix) ];
@@ -254,9 +199,7 @@ require(abind)
 
       for (i in c(index.cure.var)) {
         for (j in c(index.cure.var,length(index.surv.var)+1)) {
-          #b.sub[i,j] <- -sum((design.matrix[,i]*design.xt[,j]*theta*(1-theta)*pi)[survt[, 2] == 0])
           b.sub[i,j] <- -sum((design.matrix[,i]*design.xt[,j]*eps*(1-delta)*delta)[survt[, 2] == 0])
-          #b.sub[i,j] <- -sum((design.matrix[,i]*design.xt[,j]*eps*(1-eta)*eta*(1-theta))[survt[, 2] == 0])
 
         }
       }
@@ -270,8 +213,6 @@ require(abind)
       for (i in c(index.cure.var,length(index.surv.var)+1)) {
         for (j in c(index.cure.var,length(index.surv.var)+1)) {
           d.sub1[i,j] <- sum((design.xt[,i]*design.xt[,j]*eps)[survt[, 2] == 1])
-          #d.sub2[i,j] <- sum((design.xt[,i]*design.xt[,j]*(eps*delta-eps^2*delta+eps^2*delta^2))[survt[, 2] == 0])
-          #d.sub2[i,j] <- sum((design.xt[,i]*design.xt[,j]*(eps*delta^2))[survt[, 2] == 0])
           d.sub2[i,j] <- sum((design.xt[,i]*design.xt[,j]*(eps*delta-eps^2*(delta*(1-delta))))[survt[, 2] == 0])
 
         }
@@ -282,30 +223,17 @@ require(abind)
 
       info.d.inv = mat.inv(info.d)
 
-      #    fisher.info = rbind(cbind(info.a,info.b),cbind(t(info.b),info.d))
-      #hessian.mat = -fisher.info
-
-      # #info.set0 is (A-BD^-1B^T), dif than used in modified score;
-      info.set0 = info.a-info.b%*%info.d.inv%*%t(info.b)
+       info.set0 = info.a-info.b%*%info.d.inv%*%t(info.b)
 
       #determinant of hessian matrix;
       det.info = matrix.det(info.set0)*matrix.det(info.d)
-      #   det.info = matrix.det(fisher.info)
 
-      if (PLCI==T)
-      {loglik = loglikelihood - 0.5*log(abs(det.info))} else {
-
-        loglik = loglikelihood - 0.5*log(det.info)
-      }
-    }
-
-    else if (pl == FALSE)
-    {
+       loglik = loglikelihood - 0.5*log(det.info)
+    } else if (pl == FALSE) {
       loglik = loglikelihood
     }
 
-    #loglik = loglikelihood
-    return(loglik)
+        return(loglik)
 
   }
 
@@ -326,22 +254,9 @@ require(abind)
 
 
   ##loglik function for testing parameters of cure or surv part;
+  #design.matrix1-surv part, design.matrix0-cure part;
 
-  # Test inside function by parameters;
-  # init=c(-0.1,rep(0.1,5),-5,rep(0,5),0.1);
-  # p=init[-k];
-  #
-  #
-  # k = 2; op.est = c(1.6597417,0,0.6979251,0.6755521,0.1107504,-0.7787356,-7.6222610,0.8932917,-0.1943766,1.0375249,0.7231557,-0.2439821,1.8087778)
-  # p = op.est[-k];
-  # design.matrix1 = design.matrix; design.matrix0 = design.matrix; index.cure.var=index.cure.v[-k];index.surv.var=index.surv.v; # k start from 2 for cure part;
-  #
-  # k=8; op.est = c(1.72102096,-0.31381280,0.54605339,0.56552399,0.12770956,-0.73051141,-7.30685103,0,-0.53787709,0.6942642,0.78737652, -0.03154846,1.75402608)
-  # is = k-length(index.cure.v)
-  # p = op.est[-k];
-  # design.matrix1 = design.matrix; design.matrix0 = design.matrix; index.cure.var=index.cure.v;index.surv.var=index.surv.v[-is]; # k start from 2 for cure part;
-
-  loglik.mixture.part <- function(p, survt, design.matrix1, design.matrix0, index.cure.var=index.cure.v, index.surv.var=index.surv.v, pl) {  #design.matrix1-surv, design.matrix0-cure
+  loglik.mixture.part <- function(p, survt, design.matrix1, design.matrix0, index.cure.var=index.cure.v, index.surv.var=index.surv.v, pl) {
 
     design.mtx.comb = cbind(design.matrix0,design.matrix1)
 
@@ -355,21 +270,15 @@ require(abind)
     eps = survt[,1]^(p[index.gamma-1])*exp(design.mtx.comb[,index.surv.var]%*%as.matrix(p[index.surv.var-1]))
     }
 
-    # theta = 1/(1+exp(-design.matrix0%*%as.matrix(p[index.cure.var])))
-    # eps = survt[,1]^(p[index.gamma])*exp(design.matrix1%*%as.matrix(p[index.surv.var]))
-
     eta = 1/((exp(eps)-1)*theta+1)
     delta = 1/(theta/(1-theta)*exp(eps)+1)
-    kap = -theta*(1-theta)*(1-eta)+(1-theta)^2*eta*(1-eta) #for LRT, p-large
-    #kap= (1-eta)*(1-theta)*(theta + eta)  #for est, PLCI, p-small (for TMA multivariate LRT)
+    kap = -theta*(1-theta)*(1-eta)+(1-theta)^2*eta*(1-eta)
     pi = exp(eps)*eps*eta^2
-    #lambda = (1-theta)^2*eta*(1-eta)*((2*eta-1)*(1-theta)+3)
-    #phi = theta*(1-theta)*((2*eta-1)*(1-theta)+theta)*pi
 
     ####################################################################################################
     # Note: below constructs fisher info matrix; steps are divide into 4 blocks, 2 square blocks (A&D) #
     # on upper left and lower right, 2 identical transposed blocks (B) on upper right and lower left;  #
-    # the idential B blocks are not identical in reduced models unless it's a global LRT, needs to be C#
+    # the identical B blocks are not identical in reduced models unless it's a global LRT, needs to be C#
     ####################################################################################################
 
     #calculate loglikelihood for the unpenalized;
@@ -403,9 +312,7 @@ require(abind)
 
     for (i in c(index.cure.var)) {
       for (j in c((index.surv.var-max.len), max.len+1)) {
-        #b.sub[i,j] <- -sum((as.matrix(design.matrix1)[,i]*design.xt0[,j]*theta*(1-theta)*pi)[survt[, 2] == 0])  #equivalent to expression below
         b.sub[i,j] <- -sum((as.matrix(design.matrix1)[,i]*design.xt0[,j]*eps*(1-delta)*delta)[survt[, 2] == 0])  #equivalent to expression below
-        #b.sub[i,j] <- -sum((design.matrix1[,i]*design.xt0[,j]*eps*(1-eta)*eta*(1-theta))[survt[, 2] == 0])
       }
     }
     info.b = b.sub[index.cure.var,c(index.surv.var-max.len,index.gamma-max.len)]
@@ -419,8 +326,6 @@ require(abind)
     for (i in c(index.surv.var-max.len, max.len +1)) {
       for (j in c(index.surv.var-max.len, max.len +1)) {
         d.sub1[i,j] <- sum((design.xt1[,i]*design.xt1[,j]*eps)[survt[, 2] == 1])
-        #d.sub2[i,j] <- sum((design.xt1[,i]*design.xt1[,j]*(eps*delta-eps^2*delta+eps^2*delta^2))[survt[, 2] == 0])
-        #d.sub2[i,j] <- sum((design.xt1[,i]*design.xt1[,j]*(eps*delta^2))[survt[, 2] == 0])
         d.sub2[i,j] <- sum((design.xt1[,i]*design.xt1[,j]*(eps*delta-eps^2*(delta*(1-delta))))[survt[, 2] == 0])
 
       }
@@ -449,26 +354,15 @@ require(abind)
   #################################################################
 
   #### parameter estimation under H0 for individual parameter
-  #### loglikelihood ratio test statistics for each cure part variable;
+  #### loglikelihood ratio test statistics for each of cure part variables;
 
   dim.v <- ncol(design.matrix)
   ll.cure <- rep(0,dim.v)
   llr.cure <- rep(0,dim.v)
   pval.cure <- rep(0,dim.v)
- # ll.est.cure <- array(0,c((2*dim.v+1),(2*dim.v+1)))
-  #varmat.A.cure <-sample(0,3*dim.v,replace = TRUE)
-  #varmat.A.cure <-array(0,c((2*dim.v+1),(2*dim.v+1),(2*dim.v+1))) #vcov matrix of each single parameter (cure.var1,cure.var2) likelihood ratio test;
-
- # dim(varmat.A.cure) = c(dim.v,dim.v,dim.v)
-  #score.U.cure <- array(0,c((2*dim.v+1),(2*dim.v+1))) #gradient vector for all variables of each single parameter(cure.var1,cure.var2) likelihood ratio test;
-
-  #init1=c(-0.1,rep(0,5),-5,rep(0,5),0.1)
 
   for (k in index.cure.v[-1]) {
-   # mle under the reduced (null) model for cure parameter;
-  #  if (k==5|k==6) {init1=c(-1,rep(0,5),-5,rep(-0.1,5),0.1)}
-  #  if (k==6) {init1=c(-0.5,rep(0,5),-5,rep(0,5),0.1)}
-     maximizer <- nlm(
+      maximizer <- nlm(
       f = loglik.mixture.part,
       p = init[-k],
       survt = survt, design.matrix0 = design.matrix,
@@ -478,28 +372,14 @@ require(abind)
       iterlim = iterlim, hessian=F
     );
 
-     # maximizer1 <- optim(
-     #   f = loglik.mixture.part, p = init[-k],
-     #   survt = survt, design.matrix0 = design.matrix,
-     #   design.matrix1=design.matrix,
-     #   index.cure.var=index.cure.v[-k],
-     #   pl=pl, method=c("SANN"), hessian=F
-     # );
-
-  #  ll.est.cure[,k] <- maximizer$estimate
     loglik.part = -maximizer$minimum;
-    dif.ll = -2*(loglik.part-loglik);  #loglik is ll under Ha;
+    dif.ll = -2*(loglik.part-loglik);  #loglik is ll under non-restricted model;
     pval = pchisq(abs(dif.ll),df=1,lower.tail=FALSE);
     ll.cure[k]<- loglik.part
     llr.cure[k]<- dif.ll
     pval.cure[k]<- pval
-    # if (det(maximizer$hessian) < 1e-05)
-    #   diag(maximizer$hessian) <- diag(maximizer$hessian) + 1e-06
-   # varmat.A.cure[,,k] <- solve(maximizer$hessian)  #if hessian matrix contains row/col of zeros, add small values;
-   # score.U.cure [,k] <- maximizer$gradient
 
   }
-
 
 
   ### loglikelihood calculation for each surv part variable;
@@ -510,11 +390,9 @@ require(abind)
 
 
   for (k in index.surv.v[-1]) {
-    # mle under the reduced (null) model for surv parameter;
     is=k-length(index.cure.v)
-   # if (k==11|k==12) {init=c(1,rep(0,5),-5,rep(0,5),0.1)}
     maximizer <- nlm(
-      f = loglik.mixture.part, p =  init[-k],   #p=c(-3,0.1,-1,-0.1,1),c(-2,0.1,0,-0.1,1) for univar.null.lr.pl;
+      f = loglik.mixture.part, p =  init[-k],
       survt = survt, design.matrix1 = design.matrix,
       design.matrix0=design.matrix,
       index.surv.var=index.surv.v[-is],
@@ -553,77 +431,21 @@ require(abind)
 
 
 #######################################
-## Output tables from either method; ##
+## Output tables from FT-PLE or ML; ##
 #######################################
-
-# colnames(var.mat) <- c(
-#   paste('cure.', colnames(design.matrix)),
-#   paste('surv.', colnames(design.matrix)),
-#   'alpha'
-# );
-# rownames(var.mat) <- colnames(var.mat);
 
 out <- list(
   coefficients = list(
     cure = coef.table.cure,
     surv = coef.table.surv,
     alpha = coef.table.alpha
- #   run.time
+ #  run.time
   )
-  #cov = var.mat
 );
 class(out) <- c('mixcure', 'list');
 
 return(out);
 
 }
-
-
-# #### print.mixcure #############################################################
-# # DESCRIPTION
-# #   To print a mixcure object.
-# # INPUT
-# #   object : a mixcure object, which is an outcome of function mixcure.
-# #   digits : number of digits for printing, passed to print.default.
-# #   ...    : other parameters passed to print.default.
-# # OUTPUT
-# #   NULL.
-#
-# print.mixcure <- function(object, digits = 3, ...) {
-#   sep.line.cure   <- paste(c(rep('-', 37),  ' CURE ' , rep('-', 37)), collapse = '');
-#   sep.line.surv   <- paste(c(rep('-', 37),  ' SURVIVAL ' , rep('-', 37)), collapse = '');
-#   sep.line.alpha <- paste(c(rep('-', 36), ' ALPHA ', rep('-', 36)), collapse = '');
-#
-#   message(sep.line.cure);
-#   print.default(object$coefficients$cure,   digits = digits, ...);
-#
-#   message(sep.line.surv);
-#   print.default(object$coefficients$surv,   digits = digits, ...);
-#
-#   message(sep.line.alpha);
-#   print.default(object$coefficients$alpha, digits = digits, ...);
-#
-#   return(NULL);
-# };
-#
-#
-# #### coef.mixcure ##############################################################
-# coef.mixcure <- function(object) {
-#   coefs <- c(
-#     object$coefficients$cure[, 'coef'],
-#     object$coefficients$surv[, 'coef'],
-#     object$coefficients$alpha[, 'coef']
-#   );
-#   names(coefs) <- c( paste('cure.', rownames(object$coefficients$cure)),
-#                      paste('surv.', rownames(object$coefficients$surv)),
-#                      rownames(object$coefficients$alpha) );
-#
-#   return(coefs);
-# }
-#
-#
-# vcov.mixcure <- function(object) {
-#   return(object$cov);
-# }
 
 
