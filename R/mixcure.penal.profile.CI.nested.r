@@ -648,7 +648,7 @@ mixcure.penal.profile.CI.nested <- function(formula, data, init, pl, apct = 0.05
         #diff.up = l.temp.up - l.null
         #converge0 <- (abs(diff.up) <= tol)
         alevel.up <- pchisq(2*(l.temp-l.temp.up),df=1,ncp=0,lower.tail = T)
-        print(c(delta.up, alevel.up, n,l.temp.up,k,iter1,iter2))
+        #print(c(delta.up, alevel.up, n,l.temp.up,k,iter1,iter2))
         if (!inside) {delta.up <- delta.up/((n+1)/n);iter2 <- iter2 + 1}  #(n+0.1)/n for low rate H0;
         if (is.nan(delta.up)) {param.est.temp.up[k] <- NA}
       } #for iter2
@@ -722,7 +722,7 @@ mixcure.penal.profile.CI.nested <- function(formula, data, init, pl, apct = 0.05
         # diff.lo = l.temp.lo - l.null
         # converge0 <- (abs(diff.lo) <= tol)
         alevel.lo <- pchisq(2*(l.temp-l.temp.lo),df=1,ncp=0,lower.tail = T)
-        print(c(delta.lo, alevel.lo, n,l.temp.lo,k,iter1,iter2))
+        #print(c(delta.lo, alevel.lo, n,l.temp.lo,k,iter1,iter2))
         if (!inside) {delta.lo <- delta.lo/((n+dt.lo)/n);iter2 <- iter2 + 1} #for variables other than LuminalA (n+0.5)/n;
         if (is.nan(delta.lo)) {param.est.temp.lo[k] <- NA}
 
@@ -912,7 +912,7 @@ mixcure.penal.profile.CI.nested <- function(formula, data, init, pl, apct = 0.05
         # diff.lo = l.temp.lo - l.null
         # converge0 <- (abs(diff.lo) <= tol)
         alevel.lo <- pchisq(2*(l.temp-l.temp.lo),df=1,ncp=0,lower.tail = T)
-        print(c(delta.lo, alevel.lo, n,l.temp.lo,k,iter1,iter2))
+        #print(c(delta.lo, alevel.lo, n,l.temp.lo,k,iter1,iter2))
         if (!inside) {delta.lo <- delta.lo/((n+0.1)/n);iter2 <- iter2 + 1}
         if (is.nan(delta.lo)) {param.est.temp.lo[k] <- NA}
 
