@@ -264,7 +264,7 @@ require(abind)
       survt = survt, design.matrix0 = design.matrix,
       design.matrix1=design.matrix,
       index.cure.var=index.cure.v[-k], pl=pl,
-      iterlim = iterlim, hessian=T, PLCI=T
+      iterlim = iterlim, hessian=T
     );
     loglik.part = -maximizer$minimum;
     dif.ll = -2*(loglik.part-loglik);  #loglik is ll under Ha;
@@ -293,7 +293,7 @@ require(abind)
       survt = survt, design.matrix1 = design.matrix,
       design.matrix0=design.matrix,
       index.surv.var=index.surv.v[-is], pl=pl,
-      iterlim = iterlim, hessian=FALSE, PLCI = T
+      iterlim = iterlim, hessian=FALSE
     );
 
     loglik.part = -maximizer$minimum;

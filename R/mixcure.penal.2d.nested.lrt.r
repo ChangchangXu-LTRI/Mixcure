@@ -5,7 +5,7 @@
 #### previously 'mixcure.penal.ESTV.nested.r'           ##
 ##########################################################
 
-mixcure.penal.2d.nested.lrt <- function(formula, data, init, pl, iterlim = 200) {
+mixcure.penal.2d.nested.lrt <- function(formula, data, init, pl, loglik, iterlim = 200) {
 require(splines)
 require(survival)
 require(abind)
@@ -350,10 +350,10 @@ require(abind)
   ######END of loglik.mixture####################################
 
   dim.v <- ncol(design.matrix)
-  est.list <- matrix(0,ncol=dim.v, nrow = 2*dim.v)
+  est.list <- matrix(0,ncol=dim.v, nrow = (2*dim.v+2))
 
 
-  for (k in index.cure.vt[-1]) {
+  for (k in index.cure.vt) {
 
   maximizer <- nlm(
     f = loglik.mixture,
@@ -369,12 +369,14 @@ require(abind)
 
 loglik.part <- -maximizer$minimum #in loglik function loglik was calculated as minus of actual loglik value
 est.value <- maximizer$estimate
-est.list[,k] <- c(est.value[-c(k,(k + dim.v))], loglik.part)
+llr <- 2*(loglik - loglik.part)
+pval <- pchisq(llr, df =2 , lower.tail = F)
+est.list[,k] <- c(est.value[-c(k,(k + dim.v))], loglik.part, llr, pval)
   }
 
-
-coef.table <-  est.list
-#rownames(coef.table) <- colnames(design.matrix);
+rownames(est.list) <- c(colnames(design.matrix)[-k],colnames(design.matrix)[-k],"shape","loglik.part", "llr", "pval")
+coef.table <-  est.list[-c(1:(2*dim.v-1)),]
+colnames(coef.table) <- colnames(design.matrix);
 
 
 out <- list(

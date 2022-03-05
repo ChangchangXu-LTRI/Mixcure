@@ -412,7 +412,8 @@ out <- list(
   cov = var.mat,
   formula = formula,
   init = init,
-  data = data
+  data = data,
+  loglikelihood = -maximizer0$minimum
 );
 class(out) <- c('mixcure', 'list');
 
