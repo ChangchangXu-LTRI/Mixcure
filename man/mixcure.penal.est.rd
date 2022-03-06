@@ -81,9 +81,9 @@ mc.ple2
 # Low event rate, 5 variable
 data(ANNbcBMdat5)
 # Fit the MC model using maximum likelihoodlizards.
-mc.mle5 <- mixcure.penal.est(Surv(Time, CENS == 1) ~ Her2 + LuminalA +TN +MENS0 + TUMCT,data=ANNbcBMdat5,init=c(-1.5,rep(0,5),-5,rep(0,5),0.1), pl=F)
+mc.mle5 <- mixcure.penal.est(Surv(Time, CENS == 1) ~ Her2 + LuminalA +TN +MENS0 + TUMCT,data=ANNbcBMdat5,init=c(5,rep(0,5),-10,rep(0,5),0.1), pl=F)
 # Now the bias-reduced fit:
-mc.ple5 <- mixcure.penal.est(Surv(Time, CENS == 1) ~ Her2 + LuminalA +TN +MENS0 + TUMCT,data=ANNbcBMdat5,init=c(-1.5,rep(0,5),-5,rep(0,5),0.1), pl=T)
+mc.ple5 <- mixcure.penal.est(Surv(Time, CENS == 1) ~ Her2 + LuminalA +TN +MENS0 + TUMCT,data=ANNbcBMdat5,init=c(5,rep(0,5),-10,rep(0,5),0.1), pl=T)
 
 mc.mle5
 mc.ple5

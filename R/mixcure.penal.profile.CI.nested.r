@@ -170,7 +170,6 @@ mixcure.penal.profile.CI.nested <- function(formula, data, init, pl, apct = 0.05
     eps = survt[,1]^(p[index.gamma])*exp(design.matrix%*%p[index.surv.var])
     eta = 1/((exp(eps)-1)*theta+1)
     delta = 1/(theta/(1-theta)*exp(eps)+1)
-    #kap = theta*(1-theta)*(1-eta)-(1-theta)^2*eta*(1-eta)
     kap= (1-eta)*(1-theta)*(theta + eta)
     pi = exp(eps)*eps*eta^2
     lambda = (1-theta)^2*eta*(1-eta)*((2*eta-1)*(1-theta)+3)
@@ -213,8 +212,6 @@ mixcure.penal.profile.CI.nested <- function(formula, data, init, pl, apct = 0.05
 
       for (i in c(index.cure.var)) {
         for (j in c(index.cure.var,length(index.surv.var)+1)) {
-          #b.sub[i,j] <- -sum((design.matrix[,i]*design.xt[,j]*theta*(1-theta)*pi)[survt[, 2] == 0])
-          #b.sub[i,j] <- -sum((design.matrix[,i]*design.xt[,j]*eps*(1-delta)*delta)[survt[, 2] == 0]) #for est, PLCI
           b.sub[i,j] <- -sum((design.matrix[,i]*design.xt[,j]*eps*(1-delta)*delta)[survt[, 2] == 0]) #alternative expression for est
         }
       }
@@ -228,7 +225,6 @@ mixcure.penal.profile.CI.nested <- function(formula, data, init, pl, apct = 0.05
         for (j in c(index.cure.var,length(index.surv.var)+1)) {
           d.sub1[i,j] <- sum((design.xt[,i]*design.xt[,j]*eps)[survt[, 2] == 1])
           d.sub2[i,j] <- sum((design.xt[,i]*design.xt[,j]*(eps*delta-eps^2*delta+eps^2*delta^2))[survt[, 2] == 0])
-          # d.sub2[i,j] <- sum((design.xt[,i]*design.xt[,j]*(eps*delta^2))[survt[, 2] == 0])
 
         }
       }
@@ -973,7 +969,7 @@ mixcure.penal.profile.CI.nested <- function(formula, data, init, pl, apct = 0.05
       alpha = coef.table.alpha
     )
   );
-  class(out) <- c('mixcure', 'list');
+  class(out) <- c('mixcure.plci', 'list');
 
   return(out);
 
