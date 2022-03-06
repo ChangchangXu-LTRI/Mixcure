@@ -27,12 +27,16 @@ MC model specification in the form of a conventional survival model, i.e., Surv(
   }
 }
 \details{
-1) For categorical variables of 3 or more categories, pre-treatment for transforming it to binary dummy variables are needed, when being specified in the formula. 
+1) For categorical variables of 3 or more categories, pre-treatment for transforming it to binary dummy variables are needed, when being specified in the formula.
 }
 \value{
 The mixcure.penal.est function returns an object of class 'mixcure' that encompasses a list of the followings:
   \item{coefficients}{contains 3 tables of parameter estimates with standard errors, as well as Wald-type test statistics, p values and interval estimations: i) 'CURE' table for regression parameters of the incidence part; ii) 'SURVIVAL' table for regression parameters of the latency part; iii) 'ALPHA' table for shape parameter of the Weibull baseline hazard function in the latency part.}
   \item{cov}{variance-covariance matrix of all the parameters in the order of incidence part, latency part and shape parameter.}
+  \item{formula} {formula of fitted model.}
+  \item{init} {initial input values for the parameters.}
+  \item{data} {model fitted data.}
+  \item{loglikelihood} {returns the (penalized) maximum loglikelihood value.}
 }
 \references{
 Firth (1993)
@@ -55,11 +59,11 @@ ii) coef.mixcure
 # Begin Example
 
 # High event rate, univariate
-data(ANNbcBMdat2)
+data(ANNbcBMdat1)
 # Fit the MC model using maximum likelihoodlizards.
-mc.mle1 <- mixcure.penal.est(Surv(Time, CENS == 1) ~ Her2,data=ANNbcBMdat1,init=c(0.5,-0.1,-5,1,0.1), pl=F)
+mc.mle1 <- mixcure.penal.est(Surv(Time, CENS == 1) ~ Her2,data=ANNbcBMdat1,init=c(1,-0.1,-10,1,1), pl=F)
 # Now the bias-reduced fit:
-mc.ple1 <- mixcure.penal.est(Surv(Time, CENS == 1) ~ Her2,data=ANNbcBMdat1,init=c(0.5,-0.1,-5,1,0.1), pl=T)
+mc.ple1 <- mixcure.penal.est(Surv(Time, CENS == 1) ~ Her2,data=ANNbcBMdat1,init=c(1,-0.1,-10,1,1), pl=T)
 
 mc.mle1
 mc.ple1
@@ -67,9 +71,9 @@ mc.ple1
 # Relatively low event rate, univariate
 data(ANNbcBMdat2)
 # Fit the MC model using maximum likelihoodlizards.
-mc.mle2 <- mixcure.penal.est(Surv(Time, CENS == 1) ~ Her2,data=ANNbcBMdat2,init=c(0.5,-0.1,-5,1,0.1), pl=F)
+mc.mle2 <- mixcure.penal.est(Surv(Time, CENS == 1) ~ Her2,data=ANNbcBMdat2,init=c(1,-0.1,-10,1,1), pl=F)
 # Now the bias-reduced fit:
-mc.ple2 <- mixcure.penal.est(Surv(Time, CENS == 1) ~ Her2,data=ANNbcBMdat2,init=c(0.5,-0.1,-5,1,0.1), pl=T)
+mc.ple2 <- mixcure.penal.est(Surv(Time, CENS == 1) ~ Her2,data=ANNbcBMdat2,init=c(1,-0.1,-10,1,1), pl=T)
 
 mc.mle2
 mc.ple2
@@ -77,9 +81,9 @@ mc.ple2
 # Low event rate, 5 variable
 data(ANNbcBMdat5)
 # Fit the MC model using maximum likelihoodlizards.
-mc.mle5 <- mixcure.penal.est(Surv(Time, CENS == 1) ~ Her2,data=ANNbcBMdat5,init=c(-1.5,rep(0,5),-5,rep(0,5),0.1), pl=F)
+mc.mle5 <- mixcure.penal.est(Surv(Time, CENS == 1) ~ Her2 + LuminalA +TN +MENS0 + TUMCT,data=ANNbcBMdat5,init=c(-1.5,rep(0,5),-5,rep(0,5),0.1), pl=F)
 # Now the bias-reduced fit:
-mc.ple5 <- mixcure.penal.est(Surv(Time, CENS == 1) ~ Her2,data=ANNbcBMdat5,init=c(-1.5,rep(0,5),-5,rep(0,5),0.1), pl=T)
+mc.ple5 <- mixcure.penal.est(Surv(Time, CENS == 1) ~ Her2 + LuminalA +TN +MENS0 + TUMCT,data=ANNbcBMdat5,init=c(-1.5,rep(0,5),-5,rep(0,5),0.1), pl=T)
 
 mc.mle5
 mc.ple5
