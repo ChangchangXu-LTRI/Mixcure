@@ -13,3 +13,7 @@ RoxygenNote: 7.1.1
 NeedsCompilation: no
 Packaged: 2021-01-06 04:03:33 UTC; xucc8
 Depends: R (>= 3.5.0)
+Suggests: 
+    rmarkdown,
+    knitr
+VignetteBuilder: knitr
