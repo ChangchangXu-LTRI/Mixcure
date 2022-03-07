@@ -65,8 +65,8 @@ mc.mle1 <- mixcure.penal.est(Surv(Time, CENS == 1) ~ Her2,data=ANNbcBMdat1,init=
 # Now the bias-reduced fit:
 mc.ple1 <- mixcure.penal.est(Surv(Time, CENS == 1) ~ Her2,data=ANNbcBMdat1,init=c(1,-0.1,-10,1,1), pl=T)
 
-mc.mle1
-mc.ple1
+mc.mle1$coefficients
+mc.ple1$coefficients
 
 # Relatively low event rate, univariate
 data(ANNbcBMdat2)
@@ -75,8 +75,8 @@ mc.mle2 <- mixcure.penal.est(Surv(Time, CENS == 1) ~ Her2,data=ANNbcBMdat2,init=
 # Now the bias-reduced fit:
 mc.ple2 <- mixcure.penal.est(Surv(Time, CENS == 1) ~ Her2,data=ANNbcBMdat2,init=c(1,-0.1,-10,1,1), pl=T)
 
-mc.mle2
-mc.ple2
+mc.mle2$coefficients
+mc.ple2$coefficients
 
 # Low event rate, 5 variable
 data(ANNbcBMdat5)
@@ -85,8 +85,8 @@ mc.mle5 <- mixcure.penal.est(Surv(Time, CENS == 1) ~ Her2 + LuminalA +TN +MENS0 
 # Now the bias-reduced fit:
 mc.ple5 <- mixcure.penal.est(Surv(Time, CENS == 1) ~ Her2 + LuminalA +TN +MENS0 + TUMCT,data=ANNbcBMdat5,init=c(5,rep(0,5),-10,rep(0,5),0.1), pl=T)
 
-mc.mle5
-mc.ple5
+mc.mle5$coefficients
+mc.ple5$coefficients
 
 
 
