@@ -366,7 +366,7 @@ require(abind)
   llr.cure <- rep(0,dim.v)
   pval.cure <- rep(0,dim.v)
 
-  for (k in index.cure.v[-1]) {
+  for (k in index.cure.v) {
       maximizer <- nlm(
       f = loglik.mixture.part,
       p = init[-k],
@@ -394,7 +394,7 @@ require(abind)
   pval.surv <- rep(0,ncol(design.matrix))
 
 
-  for (k in index.surv.v[-1]) {
+  for (k in index.surv.v) {
     is=k-length(index.cure.v)
     maximizer <- nlm(
       f = loglik.mixture.part, p =  init[-k],
