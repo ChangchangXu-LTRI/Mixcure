@@ -10,4 +10,4 @@ This package can be installed via the following R code:
 
 devtools::install_github("ChangchangXu-LTRI/mixcure", build = TRUE, build_opts = c())
 
-library(mixcure)
+library(Mixcure)
