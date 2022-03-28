@@ -9,120 +9,11 @@ mixcure.penal.1d.dc.lrt <- function(formula, data, init, pl, iterlim = 200) {
 require(splines)
 require(survival)
 require(abind)
-  matrix.det<- function(matx) {
-
-    #determinant for 2x2;
-    TwobyTwo <- function(matfunc) {
-      detm = matfunc[1,1]*matfunc[2,2]-matfunc[1,2]*matfunc[2,1]
-      return(detm)
-    }
-
-    #determinant for 3x3;
-    ThebyThe <- function(matfunc) {
-      detm =  matfunc[1,1] * TwobyTwo(matfunc[-1,][,-1]) - matfunc[1,2] * TwobyTwo(matfunc[-1,][,-2]) + matfunc[1,3] * TwobyTwo(matfunc[-1,][,-3])
-      return(detm)
-    }
-
-    #determinant for 4x4;
-    FourbyFour <- function(matfunc){
-      detm = matfunc[1,1] * ThebyThe(matfunc[-1,][,-1]) - matfunc[1,2] * ThebyThe(matfunc[-1,][,-2]) + matfunc[1,3] * ThebyThe(matfunc[-1,][,-3]) - matfunc[1,4] * ThebyThe(matfunc[-1,][,-4])
-      return(detm)
-    }
-
-    #determinant for 5x5;
-    FivebyFive <- function(matfunc){
-      detm = matfunc[1,1] * FourbyFour(matfunc[-1,][,-1])- matfunc[1,2] * FourbyFour(matfunc[-1,][,-2]) + matfunc[1,3] * FourbyFour(matfunc[-1,][,-3])- matfunc[1,4] * FourbyFour(matfunc[-1,][,-4])+ matfunc[1,5] * FourbyFour(matfunc[-1,][,-5])
-      return(detm)
-    }
-
-    #determinant for 6x6;
-    SixbySix <- function(matfunc){
-      detm = matfunc[1,1] * FivebyFive(matfunc[-1,][,-1]) - matfunc[1,2] * FivebyFive(matfunc[-1,][,-2]) + matfunc[1,3] * FivebyFive(matfunc[-1,][,-3]) - matfunc[1,4] * FivebyFive(matfunc[-1,][,-4]) + matfunc[1,5] * FivebyFive(matfunc[-1,][,-5]) - matfunc[1,6] * FivebyFive(matfunc[-1,][,-6])
-      return(detm)
-    }
-
-    #determinant for 7x7;
-    SevbySev <- function(matfunc){
-      detm = matfunc[1,1] * SixbySix(matfunc[-1,][,-1]) - matfunc[1,2] * SixbySix(matfunc[-1,][,-2]) + matfunc[1,3] * SixbySix(matfunc[-1,][,-3]) - matfunc[1,4] * SixbySix(matfunc[-1,][,-4]) + matfunc[1,5] * SixbySix(matfunc[-1,][,-5]) - matfunc[1,6] * SixbySix(matfunc[-1,][,-6]) + matfunc[1,7] * SixbySix(matfunc[-1,][,-7])
-      return(detm)
-    }
-
-    #determinant for 8x8;
-    EigbyEig <- function(matfunc){
-      detm = matfunc[1,1] * SevbySev(matfunc[-1,][,-1]) - matfunc[1,2] * SevbySev(matfunc[-1,][,-2]) + matfunc[1,3] * SevbySev(matfunc[-1,][,-3]) - matfunc[1,4] * SevbySev(matfunc[-1,][,-4]) + matfunc[1,5] * SevbySev(matfunc[-1,][,-5]) - matfunc[1,6] * SevbySev(matfunc[-1,][,-6]) + matfunc[1,7] * SevbySev(matfunc[-1,][,-7]) - matfunc[1,8] * SevbySev(matfunc[-1,][,-8])
-      return(detm)
-    }
-
-    #determinant for 9x9;
-    NinbyNin <- function(matfunc){
-      detm = matfunc[1,1] * EigbyEig(matfunc[-1,][,-1]) - matfunc[1,2] * EigbyEig(matfunc[-1,][,-2]) + matfunc[1,3] * EigbyEig(matfunc[-1,][,-3]) - matfunc[1,4] * EigbyEig(matfunc[-1,][,-4]) + matfunc[1,5] * EigbyEig(matfunc[-1,][,-5]) - matfunc[1,6] * EigbyEig(matfunc[-1,][,-6]) + matfunc[1,7] * EigbyEig(matfunc[-1,][,-7]) - matfunc[1,8] * EigbyEig(matfunc[-1,][,-8]) + matfunc[1,9] * EigbyEig(matfunc[-1,][,-9])
-      return(detm)
-    }
-
-    #determinant for 10x10;
-    TenbyTen <- function(matfunc){
-      detm = matfunc[1,1] * NinbyNin(matfunc[-1,][,-1]) - matfunc[1,2] * NinbyNin(matfunc[-1,][,-2]) + matfunc[1,3] * NinbyNin(matfunc[-1,][,-3]) - matfunc[1,4] * NinbyNin(matfunc[-1,][,-4]) + matfunc[1,5] * NinbyNin(matfunc[-1,][,-5]) - matfunc[1,6] * NinbyNin(matfunc[-1,][,-6]) + matfunc[1,7] * NinbyNin(matfunc[-1,][,-7]) - matfunc[1,8] * NinbyNin(matfunc[-1,][,-8]) + matfunc[1,9] * NinbyNin(matfunc[-1,][,-9]) - matfunc[1,10] * NinbyNin(matfunc[-1,][,-10])
-      return(detm)
-    }
-
-    #determinant for 11x11;
-
-    ElebyEle <- function(matfunc){
-      detm = matfunc[1,1] * TenbyTen(matfunc[-1,][,-1]) - matfunc[1,2] * TenbyTen(matfunc[-1,][,-2]) + matfunc[1,3] * TenbyTen(matfunc[-1,][,-3]) - matfunc[1,4] * TenbyTen(matfunc[-1,][,-4]) + matfunc[1,5] * TenbyTen(matfunc[-1,][,-5]) - matfunc[1,6] * TenbyTen(matfunc[-1,][,-6]) + matfunc[1,7] * TenbyTen(matfunc[-1,][,-7]) - matfunc[1,8] * TenbyTen(matfunc[-1,][,-8]) + matfunc[1,9] * TenbyTen(matfunc[-1,][,-9]) - matfunc[1,10] * TenbyTen(matfunc[-1,][,-10]) + matfunc[1,11] * TenbyTen(matfunc[-1,][,-11])
-      return(detm)
-    }
-
-
-    if (ncol(matx) == 1){
-      determt = matx
-    }
-
-    if (ncol(matx) == 2){
-      determt = TwobyTwo(matx)
-    }
-
-    if (ncol(matx) == 3){
-      determt = ThebyThe(matx)
-    }
-
-    if (ncol(matx) == 4){
-      determt = FourbyFour(matx)
-    }
-
-    if (ncol(matx) == 5){
-      determt = FivebyFive(matx)
-    }
-
-    if (ncol(matx) == 6){
-      determt = SixbySix(matx)
-    }
-
-    if (ncol(matx) == 7){
-      determt = SevbySev(matx)
-    }
-
-    if (ncol(matx) == 8){
-      determt = EigbyEig(matx)
-    }
-
-    if (ncol(matx) == 9){
-      determt = NinbyNin(matx)
-    }
-
-    if (ncol(matx) == 10){
-      determt = TenbyTen(matx)
-    }
-
-    if (ncol(matx) == 11){
-      determt = ElebyEle(matx)
-    }
-    return(determt)
-  }
 
   #########################################################################################
   mat.inv <- function(matx) {
 
-    detm = matrix.det(matx)
+    detm = det(matx)
     #2x2 matrix inverse;
     if (ncol(matx) == 2) {
       inv.matx = (1/detm) * matrix(c(matx[2,2],-matx[2,1],-matx[1,2],matx[1,1]), nrow = 2)
@@ -133,7 +24,7 @@ require(abind)
       adjug.matx <- matrix(rep(0, ncol(matx)^2), nrow = nrow(matx))
       for (i in 1:nrow(matx)) {
         for (j in 1:ncol(matx)) {
-          adjug.matx[i,j] <- (-1)^(i+j)*matrix.det(matx[-i,][,-j])
+          adjug.matx[i,j] <- (-1)^(i+j)*det(matx[-i,][,-j])
         }
       }
       inv.matx <- t(adjug.matx/detm)
@@ -228,7 +119,7 @@ require(abind)
        info.set0 = info.a-info.b%*%info.d.inv%*%t(info.b)
 
       #determinant of hessian matrix;
-      det.info = matrix.det(info.set0)*matrix.det(info.d)
+      det.info = det(info.set0)*det(info.d)
 
        loglik = loglikelihood - 0.5*log(det.info)
     } else if (pl == FALSE) {
